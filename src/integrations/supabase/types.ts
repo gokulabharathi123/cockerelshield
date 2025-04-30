@@ -9,7 +9,86 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      scan_results: {
+        Row: {
+          created_at: string
+          id: string
+          scan_date: string
+          scan_duration: number | null
+          status: string
+          summary: Json
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          scan_date?: string
+          scan_duration?: number | null
+          status: string
+          summary?: Json
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          scan_date?: string
+          scan_duration?: number | null
+          status?: string
+          summary?: Json
+          url?: string
+        }
+        Relationships: []
+      }
+      vulnerabilities: {
+        Row: {
+          affected_urls: Json | null
+          category: string
+          created_at: string
+          cwe: string | null
+          description: string
+          details: string | null
+          id: string
+          name: string
+          remediation: string
+          risk_level: string
+          scan_id: string
+        }
+        Insert: {
+          affected_urls?: Json | null
+          category: string
+          created_at?: string
+          cwe?: string | null
+          description: string
+          details?: string | null
+          id?: string
+          name: string
+          remediation: string
+          risk_level: string
+          scan_id: string
+        }
+        Update: {
+          affected_urls?: Json | null
+          category?: string
+          created_at?: string
+          cwe?: string | null
+          description?: string
+          details?: string | null
+          id?: string
+          name?: string
+          remediation?: string
+          risk_level?: string
+          scan_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vulnerabilities_scan_id_fkey"
+            columns: ["scan_id"]
+            isOneToOne: false
+            referencedRelation: "scan_results"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

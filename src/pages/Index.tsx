@@ -6,9 +6,9 @@ import ScanningAnimation from "@/components/ScanningAnimation";
 import ScanResultView from "@/components/ScanResultView";
 import Footer from "@/components/Footer";
 import { ScanResult } from "@/types/security";
-import { generateMockScanResult } from "@/data/mockVulnerabilities";
 import { toast } from "sonner";
 import { Shield } from "lucide-react";
+import { startScan, processScan, getScanResult } from "@/services/scanService";
 
 enum ScanState {
   IDLE,
@@ -21,26 +21,39 @@ const Index = () => {
   const [currentUrl, setCurrentUrl] = useState<string>("");
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [scanProgress, setScanProgress] = useState(0);
+  const [currentScanId, setCurrentScanId] = useState<string | null>(null);
 
   // Handle the scan process
-  const handleStartScan = (url: string) => {
-    setCurrentUrl(url);
-    setScanState(ScanState.SCANNING);
-    setScanProgress(0);
-    
-    // Reset any previous results
-    setScanResult(null);
-    
-    // Show a toast notification
-    toast("Scan initiated", {
-      description: `Starting security scan for ${url}`,
-      icon: <Shield className="h-4 w-4 text-security-accent" />
-    });
+  const handleStartScan = async (url: string) => {
+    try {
+      setCurrentUrl(url);
+      setScanState(ScanState.SCANNING);
+      setScanProgress(0);
+      
+      // Reset any previous results
+      setScanResult(null);
+      
+      // Create a new scan in the database
+      const scanId = await startScan(url);
+      setCurrentScanId(scanId);
+      
+      // Show a toast notification
+      toast("Scan initiated", {
+        description: `Starting security scan for ${url}`,
+        icon: <Shield className="h-4 w-4 text-security-accent" />
+      });
+    } catch (error) {
+      console.error("Failed to start scan:", error);
+      toast.error("Failed to start scan", {
+        description: "There was a problem starting the scan. Please try again."
+      });
+      setScanState(ScanState.IDLE);
+    }
   };
 
   // Effect to simulate the scanning process
   useEffect(() => {
-    if (scanState !== ScanState.SCANNING) return;
+    if (scanState !== ScanState.SCANNING || !currentScanId) return;
     
     // Simulate scan progress
     const interval = setInterval(() => {
@@ -50,16 +63,30 @@ const Index = () => {
         if (newProgress >= 100) {
           clearInterval(interval);
           
-          // Generate mock scan results
-          const result = generateMockScanResult(currentUrl);
-          setScanResult(result);
-          setScanState(ScanState.COMPLETED);
-          
-          // Show completion toast
-          toast.success("Scan completed", {
-            description: `Found ${result.summary.total} vulnerabilities`,
-            icon: <Shield className="h-4 w-4 text-security-accent" />
-          });
+          // Process the scan and get real results
+          processScan(currentScanId, currentUrl)
+            .then(() => getScanResult(currentScanId))
+            .then(result => {
+              if (result) {
+                setScanResult(result);
+                setScanState(ScanState.COMPLETED);
+                
+                // Show completion toast
+                toast.success("Scan completed", {
+                  description: `Found ${result.summary.total} vulnerabilities`,
+                  icon: <Shield className="h-4 w-4 text-security-accent" />
+                });
+              } else {
+                throw new Error("No scan result returned");
+              }
+            })
+            .catch(error => {
+              console.error("Error processing scan:", error);
+              toast.error("Scan failed", {
+                description: "There was a problem completing the scan."
+              });
+              setScanState(ScanState.IDLE);
+            });
           
           return 100;
         }
@@ -69,13 +96,14 @@ const Index = () => {
     }, 200);
     
     return () => clearInterval(interval);
-  }, [scanState, currentUrl]);
+  }, [scanState, currentUrl, currentScanId]);
 
   // Handle starting a new scan
   const handleScanAgain = () => {
     setScanState(ScanState.IDLE);
     setCurrentUrl("");
     setScanResult(null);
+    setCurrentScanId(null);
   };
 
   return (
