@@ -132,11 +132,13 @@ export async function getScanResult(scanId: string): Promise<ScanResult | null> 
     // Parse the summary properly to ensure it matches our expected type
     let summary = { total: 0, high: 0, medium: 0, low: 0 };
     if (scanData.summary && typeof scanData.summary === 'object') {
+      // Safely access properties with type assertion
+      const summaryObj = scanData.summary as Record<string, number>;
       summary = {
-        total: Number(scanData.summary.total) || 0,
-        high: Number(scanData.summary.high) || 0,
-        medium: Number(scanData.summary.medium) || 0,
-        low: Number(scanData.summary.low) || 0
+        total: Number(summaryObj.total) || 0,
+        high: Number(summaryObj.high) || 0,
+        medium: Number(summaryObj.medium) || 0,
+        low: Number(summaryObj.low) || 0
       };
     }
     
