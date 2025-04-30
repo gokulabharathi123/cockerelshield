@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -52,6 +53,13 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				security: {
+					low: '#22c55e',     // Green for low risk
+					medium: '#f59e0b',  // Amber for medium risk
+					high: '#ef4444',    // Red for high risk
+					dark: '#0f172a',    // Dark blue for backgrounds
+					accent: '#06b6d4'   // Cyan for accents
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
@@ -84,11 +92,29 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'pulse-glow': {
+					'0%, 100%': { 
+						opacity: '1',
+					},
+					'50%': { 
+						opacity: '0.6',
+					}
+				},
+				'scan-line': {
+					'0%': { 
+						transform: 'translateY(0)',
+					},
+					'100%': { 
+						transform: 'translateY(100%)',
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+				'scan-line': 'scan-line 2s linear infinite'
 			}
 		}
 	},
