@@ -9,7 +9,7 @@ export default function Footer() {
           <div className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-security-accent" />
             <span className="text-sm text-gray-400">
-              Web Guardian Shield | OWASP Top 10 Scanner
+              Cockerel Shield | OWASP Top 10 Scanner
             </span>
           </div>
           <div className="text-sm text-gray-500">

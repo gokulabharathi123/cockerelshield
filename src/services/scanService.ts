@@ -129,12 +129,23 @@ export async function getScanResult(scanId: string): Promise<ScanResult | null> 
       cwe: vuln.cwe || undefined
     }));
     
+    // Parse the summary properly to ensure it matches our expected type
+    let summary = { total: 0, high: 0, medium: 0, low: 0 };
+    if (scanData.summary && typeof scanData.summary === 'object') {
+      summary = {
+        total: Number(scanData.summary.total) || 0,
+        high: Number(scanData.summary.high) || 0,
+        medium: Number(scanData.summary.medium) || 0,
+        low: Number(scanData.summary.low) || 0
+      };
+    }
+    
     // Return the combined result
     return {
       url: scanData.url,
       scanDate: new Date(scanData.scan_date),
       vulnerabilities,
-      summary: scanData.summary,
+      summary,
       status: scanData.status as "complete" | "in-progress" | "error",
       scanDuration: scanData.scan_duration
     };

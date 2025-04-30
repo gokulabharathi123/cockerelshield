@@ -8,7 +8,7 @@ export default function Header() {
         <Shield className="h-8 w-8 text-security-accent" />
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
-            Web Guardian Shield
+            Cockerel Shield
           </h1>
           <p className="text-sm text-gray-400">
             OWASP Top 10 Vulnerability Scanner
